@@ -1,14 +1,17 @@
-const path = require('path')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
-const TerserPlugin = require("terser-webpack-plugin");
-const postcssGlobalData = require('@csstools/postcss-global-data');
+/// <reference path="./src/types/webpack-vendors.d.ts" />
+import path from 'path'
+import HtmlWebpackPlugin from 'html-webpack-plugin'
+import { CleanWebpackPlugin } from 'clean-webpack-plugin'
+import MiniCssExtractPlugin from 'mini-css-extract-plugin'
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin'
+import TerserPlugin from 'terser-webpack-plugin'
+import postcssGlobalData from '@csstools/postcss-global-data'
+import type { Configuration } from 'webpack'
+import 'webpack-dev-server'
 
-const routes = require('./src/routes.js')
+import routes from './src/routes'
 
-const getPath = p => path.resolve(__dirname, p)
+const getPath = (p: string) => path.resolve(__dirname, p)
 
 const routeInstances = routes.map(route => {
   const template = getPath(`./src/pages/${route.filename}`)
@@ -16,41 +19,40 @@ const routeInstances = routes.map(route => {
   return new HtmlWebpackPlugin(params)
 })
 
-module.exports = (env, options) => {
+export default (_env: unknown, options: { mode: string }): Configuration => {
   const { mode } = options
 
   const isProd = mode === 'production'
 
   const entry = isProd
     ? { // Для продакшена
-    base: [
-      getPath('./src/entries/base.ts')
-    ],
-    styles: [
-      getPath('./src/assets/styles/entries/root.ts'),
+      base: [
+        getPath('./src/entries/base.ts')
+      ],
+      styles: [
+        getPath('./src/assets/styles/entries/root.ts'),
+        getPath('./src/assets/styles/common/fonts.css'),
+        getPath('./src/assets/styles/entries/top.ts'),
+        getPath('./src/assets/styles/entries/common.ts'),
+        getPath('./src/assets/styles/entries/ui.ts'),
+        getPath('./src/assets/styles/entries/base.ts'),
+      ]
+    }
+    : [ // Для hot-reload
       getPath('./src/assets/styles/common/fonts.css'),
+      getPath('./src/assets/styles/entries/root.ts'),
+      getPath('./src/entries/base.ts'),
       getPath('./src/assets/styles/entries/top.ts'),
       getPath('./src/assets/styles/entries/common.ts'),
       getPath('./src/assets/styles/entries/ui.ts'),
       getPath('./src/assets/styles/entries/base.ts'),
     ]
-  }
-    : [ // Для hot-reload
-    getPath('./src/assets/styles/common/fonts.css'),
-    getPath('./src/assets/styles/entries/root.ts'),
-    getPath('./src/entries/base.ts'),
-    getPath('./src/assets/styles/entries/top.ts'),
-    getPath('./src/assets/styles/entries/common.ts'),
-    getPath('./src/assets/styles/entries/ui.ts'),
-    getPath('./src/assets/styles/entries/base.ts'),
-  ]
 
-
-  const postcssPlugins = [
+  const postcssPlugins: unknown[] = [
     postcssGlobalData({
-        files: [
-          getPath('./src/assets/styles/common/media.css')
-        ]
+      files: [
+        getPath('./src/assets/styles/common/media.css')
+      ]
     }),
     [
       'postcss-custom-media',
@@ -78,7 +80,7 @@ module.exports = (env, options) => {
   ]
 
   if (isProd) {
-    const pxtoremPlugin = [
+    postcssPlugins.push([
       'postcss-pxtorem',
       {
         rootValue: 16,
@@ -86,13 +88,11 @@ module.exports = (env, options) => {
         selectorBlackList: [/^html$/],
         exclude: /node_modules/i
       }
-    ]
-
-    postcssPlugins.push(pxtoremPlugin)
+    ])
   }
 
   const baseCssLoader = isProd
-    ?  MiniCssExtractPlugin.loader
+    ? MiniCssExtractPlugin.loader
     : 'style-loader'
 
   const postcssLoader = {
@@ -129,27 +129,17 @@ module.exports = (env, options) => {
         new TerserPlugin({
           extractComments: false,
         }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         new CssMinimizerPlugin({
           minify: [
             CssMinimizerPlugin.cssnanoMinify,
             CssMinimizerPlugin.cleanCssMinify,
-          ]
-        })
+          ] as any,
+        }),
       ]
     },
     module: {
       rules: [
-        // JS
-        // {
-        //   test: /\.(js)$/,
-        //   exclude: /node_modules/,
-        //   use: {
-        //     loader: 'babel-loader',
-        //     options: {
-        //       presets: [ '@babel/preset-env' ]
-        //     }
-        //   }
-        // },
         {
           test: /\.tsx?$/,
           use: 'ts-loader',
