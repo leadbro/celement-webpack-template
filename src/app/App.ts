@@ -4,29 +4,27 @@ import throttle from '@/utils/throttle'
 import CElement from '@/components/c-element/c-element'
 
 interface ComponentList {
-  [index: string]: CustomElementConstructor
+  [key: string]: CustomElementConstructor
 }
 
 interface MethodList {
-  [index: string]: Function
+  [key: string]: (...args: unknown[]) => unknown
 }
 
 export interface AppConfig {
-  // plugins?: []
   components: ComponentList
   methods?: MethodList
-  created?: Function
-  onresize?: Function
-  onload?: Function
+  created?: () => void
+  onresize?: (oldScreen: string, newScreen: string) => void
+  onload?: () => void
 }
 
 export default class App {
-  mediaScreen: string
-  [index: string]: string | unknown
+  mediaScreen: string;
+  [key: string]: unknown
 
   constructor(config: AppConfig) {
-    const { 
-      // plugins,
+    const {
       components,
       methods,
       created,
@@ -34,76 +32,59 @@ export default class App {
       onload
     } = config
 
-    // Инициализируем экстненшены
-    // this._initPlugins(plugins) 
-
     // Инициализация переданных методов
-    this._initMethods(methods)
+    if (methods) this._initMethods(methods)
 
     // Инициализация кастомных элементов
     this._initComponents(components)
 
     // Событие после инициализации
-    created.bind(this)()
+    if (created) created.call(this)
 
     // Событие после загрузки страницы
-    document.addEventListener('DOMContentLoaded', onload.bind(this) )
+    if (onload) {
+      document.addEventListener('DOMContentLoaded', onload.bind(this))
+    }
 
     // Тип экрана девайса
     this.mediaScreen = this._getMediaScreen()
 
     // Событие после ресайза страницы
-    window.addEventListener('resize', throttle((e: Event) => {
+    window.addEventListener('resize', throttle(() => {
       const oldScreen = this.mediaScreen
       const newScreen = this._getMediaScreen()
 
       this.mediaScreen = newScreen
 
-      onresize.bind(this)(oldScreen, newScreen)
+      if (onresize) onresize.call(this, oldScreen, newScreen)
     }, 200))
   }
 
-  isTouchDevice() {
+  isTouchDevice(): boolean {
     return 'ontouchstart' in document.documentElement
   }
 
-  isMobileScreen() {
+  isMobileScreen(): boolean {
     const screen = this._getMediaScreen()
     return !screen.includes('desktop')
   }
 
-  isDesktopScreen() {
+  isDesktopScreen(): boolean {
     const screen = this._getMediaScreen()
     return screen.includes('desktop')
   }
 
-  _getMediaScreen() {
+  _getMediaScreen(): string {
     const rootStyles = getComputedStyle(document.documentElement)
-
     return rootStyles.getPropertyValue('--media-screen').trim()
   }
 
-  // Регистрация экстеншенов
-  // _initPlugins(plugins: []) {
-  //   if (!plugins) return
-
-  //   const pluginsKeys = Object.keys(plugins)
-  //   if (!pluginsKeys) return
-
-  //   pluginsKeys.forEach(key => {
-  //     const plugin = plugins[key]
-  //     const name = key
-
-  //     this[name] = plugin
-  //   })
-  // }
-
   // Регистрация компонентов
-  _initComponents(components: ComponentList) {
+  _initComponents(components: ComponentList): void {
     if (!components) return
 
     const componentsKeys = Object.keys(components)
-    if (!componentsKeys) return
+    if (!componentsKeys.length) return
 
     componentsKeys.forEach((key: string) => {
       const component = components[key]
@@ -114,11 +95,11 @@ export default class App {
   }
 
   // Глобальные методы
-  _initMethods(methods: MethodList) {
+  _initMethods(methods: MethodList): void {
     if (!methods) return
 
     const methodsKeys = Object.keys(methods)
-    if (!methodsKeys) return
+    if (!methodsKeys.length) return
 
     methodsKeys.forEach(key => {
       if (this[key]) {

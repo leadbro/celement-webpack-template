@@ -1,9 +1,15 @@
-function applyInstersectionObserver(element: HTMLElement, callback: Function, intermidiate = false) {
+type IntersectionCallback = (element?: HTMLElement) => void
+
+function applyIntersectionObserver(
+  element: HTMLElement,
+  callback: IntersectionCallback,
+  intermediate = false
+): IntersectionObserver | undefined {
   if (typeof callback !== 'function') return
 
-  const observerOptions: {threshold?: number} = {}
+  const observerOptions: IntersectionObserverInit = {}
 
-  if (!intermidiate) {
+  if (!intermediate) {
     observerOptions.threshold = 0.6
   }
 
@@ -12,7 +18,7 @@ function applyInstersectionObserver(element: HTMLElement, callback: Function, in
 
     if (entry.isIntersecting) {
       callback()
-    } 
+    }
   }
 
   const observer = new IntersectionObserver(observerCallback, observerOptions)
@@ -22,18 +28,22 @@ function applyInstersectionObserver(element: HTMLElement, callback: Function, in
   return observer
 }
 
-export function onElementShow(element: HTMLElement, callback: Function, intermidiate = false) {
+export function onElementShow(
+  element: HTMLElement,
+  callback: IntersectionCallback,
+  intermediate = false
+): void {
   if (typeof callback !== 'function') return
 
-  const observer = applyInstersectionObserver(
+  const observer = applyIntersectionObserver(
     element,
     () => {
-      observer.unobserve(element)
+      observer?.unobserve(element)
 
       requestAnimationFrame(() => {
         callback(element)
       })
     },
-    intermidiate
+    intermediate
   )
 }

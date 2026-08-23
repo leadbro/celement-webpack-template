@@ -1,18 +1,22 @@
-export default function(func: Function, delay = 900, immediate?: boolean) {
-  let timerId: number;
-  return (...args: any) => {
-    const boundFunc = func.bind(this, ...args);
-    if (timerId) {
-      return;
-    }
+export default function throttle<T extends (...args: unknown[]) => void>(
+  func: T,
+  delay = 900,
+  immediate = false
+): (...args: Parameters<T>) => void {
+  let timerId: number | null = null
+
+  return (...args: Parameters<T>) => {
+    if (timerId) return
+
     if (immediate && !timerId) {
-      boundFunc();
+      func(...args)
     }
+
     timerId = window.setTimeout(() => {
-      if(!immediate) {
-        boundFunc(); 
+      if (!immediate) {
+        func(...args)
       }
-      timerId = null; 
-    }, delay);
+      timerId = null
+    }, delay)
   }
 }

@@ -1,13 +1,16 @@
-export interface truthyObject {
-  [key: string]: any
+export interface TruthyObject {
+  [key: string]: unknown
 }
 
-export function truthyValues(obj: truthyObject) {
-  const falsyValues = [undefined, null, false, 0]
+export function truthyValues(obj: TruthyObject): TruthyObject {
+  const falsyValues: unknown[] = [undefined, null, false, 0]
 
-  return Object.entries(obj).reduce((a: truthyObject,[k,v]) => (falsyValues.includes(v) ? a : (a[k]=v, a)), {})
+  return Object.entries(obj).reduce<TruthyObject>(
+    (a, [k, v]) => (falsyValues.includes(v) ? a : ((a[k] = v), a)),
+    {}
+  )
 }
 
-export function getCustomPropertyValue(el: HTMLElement, name: string) {
+export function getCustomPropertyValue(el: HTMLElement, name: string): string {
   return getComputedStyle(el).getPropertyValue(name).trim()
 }

@@ -1,14 +1,13 @@
-// import Headroom from 'headroom.js'
-import App, {AppConfig} from '@/app/App'
+import App, { AppConfig } from '@/app/App'
 
 const app = new App({
-  plugins: {},
-
   components: {},
 
-  methods: { 
+  methods: {
     initScrollBehavior() {
       const html = document.querySelector('html')
+
+      if (!html) return
 
       setTimeout(() => {
         html.style.scrollBehavior = 'smooth'
@@ -16,28 +15,22 @@ const app = new App({
     },
 
     initHeadroom() {
-      const header = document.querySelector('#header')
-      const options = {
-        offset: 10
-      }
-
+      // const header = document.querySelector('#header')
+      // const options = { offset: 10 }
       // this.headroom = new Headroom(header, options)
       // this.headroom.init()
-
-      // requestAnimationFrame(() => {
-      //   header.classList.remove('headroom--faded')
-      // })
     },
   },
 
   created() {},
 
-  onresize(oldScreen: string, newScreen: string) {},
+  onresize(_oldScreen: string, _newScreen: string) {},
 
-  onload() {
-    // Плавающая шапка
-    this.initHeadroom()
+  onload(this: App) {
+    const initHeadroom = this['initHeadroom'] as (() => void) | undefined
+    const initScrollBehavior = this['initScrollBehavior'] as (() => void) | undefined
 
-    this.initScrollBehavior()
+    initHeadroom?.()
+    initScrollBehavior?.()
   },
 } as AppConfig)

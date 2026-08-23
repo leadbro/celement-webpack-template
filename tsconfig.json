@@ -1,17 +1,19 @@
 {
   "compilerOptions": {
-    // "outDir": "./dist/",
-    // "allowImportingTsExtensions": true,
-    "noImplicitAny": true,
-    // "module": "es6",
-    // "target": "es5",
-    // "jsx": "react",
-    // "moduleResolution": "node",
-    // "allowJs": true,
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
     "baseUrl": "./",
     "paths": {
       "@/*": ["./src/*"]
     }
   },
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
 }

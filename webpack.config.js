@@ -19,8 +19,7 @@ const routeInstances = routes.map(route => {
 module.exports = (env, options) => {
   const { mode } = options
 
-  // const isProd = mode === 'production'
-  const isProd = true
+  const isProd = mode === 'production'
 
   const entry = isProd
     ? { // Для продакшена

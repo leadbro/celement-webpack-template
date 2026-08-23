@@ -1,28 +1,32 @@
 import { enableBodyScroll, disableBodyScroll } from 'body-scroll-lock'
 
-const ACTIVE_POPUPS = []
-
-export function getScrollbarGap() {
-  const bodyStyles = window.getComputedStyle(document.body)
-
-  const scrollBarGap = window.innerWidth - document.documentElement.clientWidth;
-  const paddingRight = parseInt(bodyStyles.getPropertyValue('padding-right'), 10);
-
-  return scrollBarGap + paddingRight;
+interface PopupElement extends Element {
+  scrollWrapper?: HTMLElement
 }
 
-export function setScrollbarGap(gap = 0) {
+const ACTIVE_POPUPS: Record<string, string> = {}
+
+export function getScrollbarGap(): number {
+  const bodyStyles = window.getComputedStyle(document.body)
+
+  const scrollBarGap = window.innerWidth - document.documentElement.clientWidth
+  const paddingRight = parseInt(bodyStyles.getPropertyValue('padding-right'), 10)
+
+  return scrollBarGap + paddingRight
+}
+
+export function setScrollbarGap(gap = 0): void {
   const root = document.documentElement
-  root.style.setProperty(`--scrollbar-gap`, `${gap}px`)
+  root.style.setProperty('--scrollbar-gap', `${gap}px`)
 }
 
 // Заблокировать скролл у body
-export function toggleBodyLock(name, isShowPopup = false) {
+export function toggleBodyLock(name: string, isShowPopup = false): void {
   if (!name) return
 
-  const popup = document.querySelector('#' + name)
+  const popup = document.querySelector('#' + name) as PopupElement | null
 
-  if (!popup.scrollWrapper) {
+  if (!popup?.scrollWrapper) {
     console.warn('scrollWrapper required')
     return
   }
