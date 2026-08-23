@@ -1,50 +1,28 @@
 import { camelToDash } from '@/utils/convert-case'
 import throttle from '@/utils/throttle'
 
-import CElement from '@/components/c-element/c-element'
-
 interface ComponentList {
   [key: string]: CustomElementConstructor
 }
 
-interface MethodList {
-  [key: string]: (...args: unknown[]) => unknown
-}
-
 export interface AppConfig {
   components: ComponentList
-  methods?: MethodList
-  created?: () => void
-  onresize?: (oldScreen: string, newScreen: string) => void
-  onload?: () => void
 }
 
 export default class App {
-  mediaScreen: string;
-  [key: string]: unknown
+  mediaScreen: string
 
   constructor(config: AppConfig) {
-    const {
-      components,
-      methods,
-      created,
-      onresize,
-      onload
-    } = config
-
-    // Инициализация переданных методов
-    if (methods) this._initMethods(methods)
+    const { components } = config
 
     // Инициализация кастомных элементов
     this._initComponents(components)
 
     // Событие после инициализации
-    if (created) created.call(this)
+    this.created()
 
     // Событие после загрузки страницы
-    if (onload) {
-      document.addEventListener('DOMContentLoaded', onload.bind(this))
-    }
+    document.addEventListener('DOMContentLoaded', () => this.onload())
 
     // Тип экрана девайса
     this.mediaScreen = this._getMediaScreen()
@@ -56,9 +34,14 @@ export default class App {
 
       this.mediaScreen = newScreen
 
-      if (onresize) onresize.call(this, oldScreen, newScreen)
+      this.onresize(oldScreen, newScreen)
     }, 200))
   }
+
+  // Lifecycle-хуки — переопределяются в наследнике
+  created(): void {}
+  onload(): void {}
+  onresize(_oldScreen: string, _newScreen: string): void {}
 
   isTouchDevice(): boolean {
     return 'ontouchstart' in document.documentElement
@@ -91,22 +74,6 @@ export default class App {
       const name = camelToDash(key)
 
       if (!customElements.get(name)) customElements.define(name, component)
-    })
-  }
-
-  // Глобальные методы
-  _initMethods(methods: MethodList): void {
-    if (!methods) return
-
-    const methodsKeys = Object.keys(methods)
-    if (!methodsKeys.length) return
-
-    methodsKeys.forEach(key => {
-      if (this[key]) {
-        console.error(`Method ${key} already exist`)
-      }
-
-      this[key] = methods[key]
     })
   }
 }

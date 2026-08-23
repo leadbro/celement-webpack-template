@@ -27,22 +27,22 @@ module.exports = (env, options) => {
       getPath('./src/entries/base.ts')
     ],
     styles: [
-      getPath('./src/assets/styles/entries/root.js'),
+      getPath('./src/assets/styles/entries/root.ts'),
       getPath('./src/assets/styles/common/fonts.css'),
-      getPath('./src/assets/styles/entries/top.js'),
-      getPath('./src/assets/styles/entries/common.js'),
-      getPath('./src/assets/styles/entries/ui.js'),
-      getPath('./src/assets/styles/entries/base.js'),
+      getPath('./src/assets/styles/entries/top.ts'),
+      getPath('./src/assets/styles/entries/common.ts'),
+      getPath('./src/assets/styles/entries/ui.ts'),
+      getPath('./src/assets/styles/entries/base.ts'),
     ]
   }
     : [ // Для hot-reload
     getPath('./src/assets/styles/common/fonts.css'),
-    getPath('./src/assets/styles/entries/root.js'),
+    getPath('./src/assets/styles/entries/root.ts'),
     getPath('./src/entries/base.ts'),
-    getPath('./src/assets/styles/entries/top.js'),
-    getPath('./src/assets/styles/entries/common.js'),
-    getPath('./src/assets/styles/entries/ui.js'),
-    getPath('./src/assets/styles/entries/base.js'),
+    getPath('./src/assets/styles/entries/top.ts'),
+    getPath('./src/assets/styles/entries/common.ts'),
+    getPath('./src/assets/styles/entries/ui.ts'),
+    getPath('./src/assets/styles/entries/base.ts'),
   ]
 
 
